@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/decksFragment">
+
+    <fragment
+        android:id="@+id/decksFragment"
+        android:name="com.example.flashcards.DecksFragment"
+        android:label="Колоды"
+        tools:layout="@layout/fragment_decks">
+        <action
+            android:id="@+id/action_decksFragment_to_deckDetailFragment"
+            app:destination="@id/deckDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/deckDetailFragment"
+        android:name="com.example.flashcards.DeckDetailFragment"
+        android:label="Карточки"
+        tools:layout="@layout/fragment_deck_detail">
+        <argument
+            android:name="deckId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_deckDetailFragment_to_trainingFragment"
+            app:destination="@id/trainingFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/trainingFragment"
+        android:name="com.example.flashcards.TrainingFragment"
+        android:label="Тренировка"
+        tools:layout="@layout/fragment_training">
+        <argument
+            android:name="deckId"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/statsFragment"
+        android:name="com.example.flashcards.StatsFragment"
+        android:label="Статистика"
+        tools:layout="@layout/fragment_stats" />
+</navigation>
