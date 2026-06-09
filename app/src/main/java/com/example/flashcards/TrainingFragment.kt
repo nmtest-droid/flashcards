@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import com.example.flashcards.databinding.FragmentTrainingBinding
@@ -26,12 +25,31 @@ class TrainingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(this)[TrainingViewModel::class.java]
 
-        adapter = CardPageAdapter { quality -> adapter.currentCard()?.let { viewModel.evaluate(it, quality) } }
+        adapter = CardPageAdapter { position, quality ->
+            val card = adapter.getCardAt(position) ?: return@CardPageAdapter
+            viewModel.evaluate(card, quality)
+            adapter.removeCardAt(position)
+            if (adapter.itemCount > 0) {
+                val nextPos = if (position < adapter.itemCount) position else adapter.itemCount - 1
+                binding.viewPager.setCurrentItem(nextPos, true)
+            } else {
+                binding.tvEmpty.visibility = View.VISIBLE
+                binding.viewPager.visibility = View.GONE
+            }
+        }
+
         binding.viewPager.adapter = adapter
 
         viewModel.dueCards.observe(viewLifecycleOwner) { cards ->
             adapter.submitList(cards)
-            binding.tvEmpty.visibility = if (cards.isEmpty()) View.VISIBLE else View.GONE
+            if (cards.isEmpty()) {
+                binding.tvEmpty.visibility = View.VISIBLE
+                binding.viewPager.visibility = View.GONE
+            } else {
+                binding.tvEmpty.visibility = View.GONE
+                binding.viewPager.visibility = View.VISIBLE
+                binding.viewPager.setCurrentItem(0, false)
+            }
         }
 
         viewModel.loadDueCards(args.deckId)
