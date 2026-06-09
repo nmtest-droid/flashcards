@@ -19,7 +19,24 @@ class DecksViewModel : ViewModel() {
     private val _cards = MutableLiveData<List<Card>>()
     val cards: LiveData<List<Card>> = _cards
 
-    init { loadDecks() }
+    init {
+        loadDecks()
+        syncFromCloud()
+    }
+
+    private fun syncFromCloud() {
+        fs.downloadAllDecks { decks ->
+            executor.execute {
+                decks.forEach { deck ->
+                    db.insertDeck(deck)
+                    fs.downloadCardsForDeck(deck.id) { cards ->
+                        executor.execute { cards.forEach { db.insertCard(it) } }
+                    }
+                }
+                loadDecks()
+            }
+        }
+    }
 
     fun loadDecks() {
         executor.execute { _decks.postValue(db.getDecksByUser(userId)) }
